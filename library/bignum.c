@@ -37,7 +37,7 @@
 
 #include "mbedtls/platform.h"
 
-
+#if !defined(MBEDTLS_BIGNUM_ALT)
 
 /*
  * Conditionally select an MPI sign in constant time.
@@ -1186,6 +1186,7 @@ int mbedtls_mpi_sub_int(mbedtls_mpi *X, const mbedtls_mpi *A, mbedtls_mpi_sint b
     return mbedtls_mpi_sub_mpi(X, A, &B);
 }
 
+#if !defined(MBEDTLS_MPI_MUL_MPI_ALT)
 /*
  * Baseline multiplication: X = A * B  (HAC 14.12)
  */
@@ -1281,6 +1282,7 @@ int mbedtls_mpi_mul_int(mbedtls_mpi *X, const mbedtls_mpi *A, mbedtls_mpi_uint b
 cleanup:
     return ret;
 }
+#endif
 
 /*
  * Unsigned integer divide - double mbedtls_mpi_uint dividend, u1/u0, and
@@ -1610,6 +1612,11 @@ int mbedtls_mpi_mod_int(mbedtls_mpi_uint *r, const mbedtls_mpi *A, mbedtls_mpi_s
     return 0;
 }
 
+#if !defined(MBEDTLS_MPI_EXP_MOD_ALT)
+
+/*
+ * Sliding-window exponentiation: X = A^E mod N  (HAC 14.85)
+ */
 int mbedtls_mpi_exp_mod(mbedtls_mpi *X, const mbedtls_mpi *A,
                         const mbedtls_mpi *E, const mbedtls_mpi *N,
                         mbedtls_mpi *prec_RR)
@@ -1719,6 +1726,7 @@ cleanup:
 
     return ret;
 }
+#endif
 
 /*
  * Greatest common divisor: G = gcd(A, B)  (HAC 14.54)
@@ -2275,6 +2283,7 @@ cleanup:
 }
 
 #endif /* MBEDTLS_GENPRIME */
+#endif /* MBEDTLS_BIGNUM_ALT */
 
 #if defined(MBEDTLS_SELF_TEST)
 
