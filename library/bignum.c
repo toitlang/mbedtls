@@ -49,10 +49,19 @@
 
 #include "mbedtls/platform.h"
 
+<<<<<<< HEAD
 #define MPI_VALIDATE_RET(cond)                                       \
     MBEDTLS_INTERNAL_VALIDATE_RET(cond, MBEDTLS_ERR_MPI_BAD_INPUT_DATA)
 #define MPI_VALIDATE(cond)                                           \
     MBEDTLS_INTERNAL_VALIDATE(cond)
+=======
+#if !defined(MBEDTLS_BIGNUM_ALT)
+
+#define MPI_VALIDATE_RET( cond )                                       \
+    MBEDTLS_INTERNAL_VALIDATE_RET( cond, MBEDTLS_ERR_MPI_BAD_INPUT_DATA )
+#define MPI_VALIDATE( cond )                                           \
+    MBEDTLS_INTERNAL_VALIDATE( cond )
+>>>>>>> f859b9bc7 (mbedtls: Re-apply MBEDTLS_BIGNUM_ALT & related macros for custom bignum functions)
 
 #define MPI_SIZE_T_MAX  ((size_t) -1)   /* SIZE_T_MAX is not standard */
 
@@ -1123,6 +1132,7 @@ int mbedtls_mpi_sub_int(mbedtls_mpi *X, const mbedtls_mpi *A, mbedtls_mpi_sint b
     return mbedtls_mpi_sub_mpi(X, A, &B);
 }
 
+#if !defined(MBEDTLS_MPI_MUL_MPI_ALT)
 /*
  * Baseline multiplication: X = A * B  (HAC 14.12)
  */
@@ -1229,6 +1239,7 @@ int mbedtls_mpi_mul_int(mbedtls_mpi *X, const mbedtls_mpi *A, mbedtls_mpi_uint b
 cleanup:
     return ret;
 }
+#endif
 
 /*
  * Unsigned integer divide - double mbedtls_mpi_uint dividend, u1/u0, and
@@ -1565,6 +1576,8 @@ int mbedtls_mpi_mod_int(mbedtls_mpi_uint *r, const mbedtls_mpi *A, mbedtls_mpi_s
 
     return 0;
 }
+
+#if !defined(MBEDTLS_MPI_EXP_MOD_ALT)
 
 static void mpi_montg_init(mbedtls_mpi_uint *mm, const mbedtls_mpi *N)
 {
@@ -1944,6 +1957,7 @@ cleanup:
 
     return ret;
 }
+#endif
 
 /*
  * Greatest common divisor: G = gcd(A, B)  (HAC 14.54)
@@ -2517,6 +2531,7 @@ cleanup:
 }
 
 #endif /* MBEDTLS_GENPRIME */
+#endif /* MBEDTLS_BIGNUM_ALT */
 
 #if defined(MBEDTLS_SELF_TEST)
 
