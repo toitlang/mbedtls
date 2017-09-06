@@ -85,6 +85,8 @@
 #define mbedtls_free       free
 #endif
 
+#if !defined(MBEDTLS_BIGNUM_ALT)
+
 #define MPI_VALIDATE_RET( cond )                                       \
     MBEDTLS_INTERNAL_VALIDATE_RET( cond, MBEDTLS_ERR_MPI_BAD_INPUT_DATA )
 #define MPI_VALIDATE( cond )                                           \
@@ -1554,6 +1556,8 @@ int mbedtls_mpi_sub_int( mbedtls_mpi *X, const mbedtls_mpi *A, mbedtls_mpi_sint 
     return( mbedtls_mpi_sub_mpi( X, A, &B ) );
 }
 
+#if !defined(MBEDTLS_MPI_MUL_MPI_ALT) || !defined(MBEDTLS_MPI_EXP_MOD_ALT)
+
 /*
  * Helper for mbedtls_mpi multiplication
  */
@@ -1565,6 +1569,7 @@ static
  */
 __attribute__ ((noinline))
 #endif
+
 void mpi_mul_hlp( size_t i, mbedtls_mpi_uint *s, mbedtls_mpi_uint *d, mbedtls_mpi_uint b )
 {
     mbedtls_mpi_uint c = 0, t = 0;
@@ -1626,6 +1631,9 @@ void mpi_mul_hlp( size_t i, mbedtls_mpi_uint *s, mbedtls_mpi_uint *d, mbedtls_mp
     while( c != 0 );
 }
 
+#endif
+
+#if !defined(MBEDTLS_MPI_MUL_MPI_ALT)
 /*
  * Baseline multiplication: X = A * B  (HAC 14.12)
  */
@@ -1677,6 +1685,7 @@ cleanup:
 
     return( ret );
 }
+#endif
 
 /*
  * Baseline multiplication: X = A * b
@@ -2013,6 +2022,8 @@ int mbedtls_mpi_mod_int( mbedtls_mpi_uint *r, const mbedtls_mpi *A, mbedtls_mpi_
 
     return( 0 );
 }
+
+#if !defined(MBEDTLS_MPI_EXP_MOD_ALT)
 
 /*
  * Fast Montgomery initialization (thanks to Tom St Denis)
@@ -2415,6 +2426,7 @@ cleanup:
 
     return( ret );
 }
+#endif
 
 /*
  * Greatest common divisor: G = gcd(A, B)  (HAC 14.54)
@@ -3003,6 +3015,7 @@ cleanup:
 }
 
 #endif /* MBEDTLS_GENPRIME */
+#endif /* MBEDTLS_BIGNUM_ALT */
 
 #if defined(MBEDTLS_SELF_TEST)
 
