@@ -3752,6 +3752,20 @@ run_test    "Small packet TLS 1.2 AEAD shorter tag" \
             0 \
             -s "Read from client: 1 bytes read"
 
+# Test for zero-length application data messages with CBC
+# (using a CBC cipher here causes a zero length application data
+# message to be sent (16 padding bytes.) This should be ignored
+# by mbedTLS and not returned as data to the caller
+#
+# (The actual bad data is 16 repeated 0x0f bytes, which can't
+# be matched by cross-platform grep.)
+
+run_test    "Zero-length application data message with CBC" \
+            "$O_SRV -tls1" \
+            "$P_CLI force_ciphersuite=TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA" \
+            0 \
+            -C "Read from server: 16 bytes read"
+
 # Tests for small packets in DTLS
 
 requires_config_enabled MBEDTLS_SSL_PROTO_DTLS
