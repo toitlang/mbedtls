@@ -3370,5 +3370,3 @@ cleanup:
 }
 
 #endif /* MBEDTLS_SELF_TEST */
-
-#endif /* MBEDTLS_BIGNUM_C */

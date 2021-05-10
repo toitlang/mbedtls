@@ -319,16 +319,16 @@ install(
           "${CMAKE_CURRENT_BINARY_DIR}/cmake/MbedTLSConfigVersion.cmake"
     DESTINATION "cmake")
 
-export(
-    EXPORT MbedTLSTargets
-    NAMESPACE MbedTLS::
-    FILE "cmake/MbedTLSTargets.cmake")
-
-install(
-    EXPORT MbedTLSTargets
-    NAMESPACE MbedTLS::
-    DESTINATION "cmake"
-    FILE "MbedTLSTargets.cmake")
+#export(
+#    EXPORT MbedTLSTargets
+#    NAMESPACE MbedTLS::
+#    FILE "cmake/MbedTLSTargets.cmake")
+#
+#install(
+#    EXPORT MbedTLSTargets
+#    NAMESPACE MbedTLS::
+#    DESTINATION "cmake"
+#    FILE "MbedTLSTargets.cmake")
 
 if(CMAKE_VERSION VERSION_GREATER 3.14)
     # Do not export the package by default
