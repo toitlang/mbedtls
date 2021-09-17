@@ -50,11 +50,15 @@
  * context fields directly and with restartable ECP operations.
  */
 
-#if defined(MBEDTLS_ECP_RESTARTABLE)
+/*
+ * NOTE: Defining only ECDH Legacy Context for now to avoid breaking of 'protocomm/security' component
+ * #if defined(MBEDTLS_ECP_RESTARTABLE)
+ * #define MBEDTLS_ECDH_LEGACY_CONTEXT
+ * #else
+ * #undef MBEDTLS_ECDH_LEGACY_CONTEXT
+ * #endif
+ */
 #define MBEDTLS_ECDH_LEGACY_CONTEXT
-#else
-#undef MBEDTLS_ECDH_LEGACY_CONTEXT
-#endif
 
 #if defined(MBEDTLS_ECDH_VARIANT_EVEREST_ENABLED)
 #undef MBEDTLS_ECDH_LEGACY_CONTEXT

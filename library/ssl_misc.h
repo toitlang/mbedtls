@@ -1016,16 +1016,16 @@ int mbedtls_ssl_psk_derive_premaster( mbedtls_ssl_context *ssl, mbedtls_key_exch
 static inline int mbedtls_ssl_get_psk( const mbedtls_ssl_context *ssl,
     const unsigned char **psk, size_t *psk_len )
 {
-    if( ssl->handshake->psk != NULL && ssl->handshake->psk_len > 0 )
+    if( ssl->MBEDTLS_PRIVATE(handshake)->psk != NULL && ssl->MBEDTLS_PRIVATE(handshake)->psk_len > 0 )
     {
-        *psk = ssl->handshake->psk;
-        *psk_len = ssl->handshake->psk_len;
+        *psk = ssl->MBEDTLS_PRIVATE(handshake)->psk;
+        *psk_len = ssl->MBEDTLS_PRIVATE(handshake)->psk_len;
     }
 
-    else if( ssl->conf->psk != NULL && ssl->conf->psk_len > 0 )
+    else if( ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(psk) != NULL && ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(psk_len) > 0 )
     {
-        *psk = ssl->conf->psk;
-        *psk_len = ssl->conf->psk_len;
+        *psk = ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(psk);
+        *psk_len = ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(psk_len);
     }
 
     else
@@ -1049,11 +1049,11 @@ static inline int mbedtls_ssl_get_psk( const mbedtls_ssl_context *ssl,
 static inline psa_key_id_t mbedtls_ssl_get_opaque_psk(
     const mbedtls_ssl_context *ssl )
 {
-    if( ! mbedtls_svc_key_id_is_null( ssl->handshake->psk_opaque ) )
-        return( ssl->handshake->psk_opaque );
+    if( ! mbedtls_svc_key_id_is_null( ssl->MBEDTLS_PRIVATE(handshake)->psk_opaque ) )
+        return( ssl->MBEDTLS_PRIVATE(handshake)->psk_opaque );
 
-    if( ! mbedtls_svc_key_id_is_null( ssl->conf->psk_opaque ) )
-        return( ssl->conf->psk_opaque );
+    if( ! mbedtls_svc_key_id_is_null( ssl->MBEDTLS_PRIVATE(conf)->psk_opaque ) )
+        return( ssl->MBEDTLS_PRIVATE(conf)->psk_opaque );
 
     return( MBEDTLS_SVC_KEY_ID_INIT );
 }
@@ -1102,10 +1102,10 @@ static inline mbedtls_pk_context *mbedtls_ssl_own_key( mbedtls_ssl_context *ssl 
 {
     mbedtls_ssl_key_cert *key_cert;
 
-    if( ssl->handshake != NULL && ssl->handshake->key_cert != NULL )
-        key_cert = ssl->handshake->key_cert;
+    if( ssl->MBEDTLS_PRIVATE(handshake) != NULL && ssl->MBEDTLS_PRIVATE(handshake)->key_cert != NULL )
+        key_cert = ssl->MBEDTLS_PRIVATE(handshake)->key_cert;
     else
-        key_cert = ssl->conf->key_cert;
+        key_cert = ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(key_cert);
 
     return( key_cert == NULL ? NULL : key_cert->key );
 }
@@ -1114,10 +1114,10 @@ static inline mbedtls_x509_crt *mbedtls_ssl_own_cert( mbedtls_ssl_context *ssl )
 {
     mbedtls_ssl_key_cert *key_cert;
 
-    if( ssl->handshake != NULL && ssl->handshake->key_cert != NULL )
-        key_cert = ssl->handshake->key_cert;
+    if( ssl->MBEDTLS_PRIVATE(handshake) != NULL && ssl->MBEDTLS_PRIVATE(handshake)->key_cert != NULL )
+        key_cert = ssl->MBEDTLS_PRIVATE(handshake)->key_cert;
     else
-        key_cert = ssl->conf->key_cert;
+        key_cert = ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(key_cert);
 
     return( key_cert == NULL ? NULL : key_cert->cert );
 }
@@ -1149,7 +1149,7 @@ static inline size_t mbedtls_ssl_in_hdr_len( const mbedtls_ssl_context *ssl )
 #endif
 
 #if defined(MBEDTLS_SSL_PROTO_DTLS)
-    if( ssl->conf->transport == MBEDTLS_SSL_TRANSPORT_DATAGRAM )
+    if( ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(transport) == MBEDTLS_SSL_TRANSPORT_DATAGRAM )
     {
         return( 13 );
     }
@@ -1162,13 +1162,13 @@ static inline size_t mbedtls_ssl_in_hdr_len( const mbedtls_ssl_context *ssl )
 
 static inline size_t mbedtls_ssl_out_hdr_len( const mbedtls_ssl_context *ssl )
 {
-    return( (size_t) ( ssl->out_iv - ssl->out_hdr ) );
+    return( (size_t) ( ssl->MBEDTLS_PRIVATE(out_iv) - ssl->MBEDTLS_PRIVATE(out_hdr) ) );
 }
 
 static inline size_t mbedtls_ssl_hs_hdr_len( const mbedtls_ssl_context *ssl )
 {
 #if defined(MBEDTLS_SSL_PROTO_DTLS)
-    if( ssl->conf->transport == MBEDTLS_SSL_TRANSPORT_DATAGRAM )
+    if( ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(transport) == MBEDTLS_SSL_TRANSPORT_DATAGRAM )
         return( 12 );
 #else
     ((void) ssl);
@@ -1238,7 +1238,7 @@ int mbedtls_ssl_decrypt_buf( mbedtls_ssl_context const *ssl,
 static inline size_t mbedtls_ssl_ep_len( const mbedtls_ssl_context *ssl )
 {
 #if defined(MBEDTLS_SSL_PROTO_DTLS)
-    if( ssl->conf->transport == MBEDTLS_SSL_TRANSPORT_DATAGRAM )
+    if( ssl->MBEDTLS_PRIVATE(conf)->MBEDTLS_PRIVATE(transport) == MBEDTLS_SSL_TRANSPORT_DATAGRAM )
         return( 2 );
 #else
     ((void) ssl);
