@@ -163,7 +163,8 @@ static psa_status_t psa_aead_setup(
                                                  key_bits,
                                                  alg );
 
-    return( PSA_SUCCESS );
+    status = PSA_SUCCESS;
+    return( status );
 }
 
 psa_status_t mbedtls_psa_aead_encrypt(
