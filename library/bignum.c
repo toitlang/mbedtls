@@ -49,19 +49,12 @@
 
 #include "mbedtls/platform.h"
 
-<<<<<<< HEAD
+#if !defined(MBEDTLS_BIGNUM_ALT)
+
 #define MPI_VALIDATE_RET(cond)                                       \
     MBEDTLS_INTERNAL_VALIDATE_RET(cond, MBEDTLS_ERR_MPI_BAD_INPUT_DATA)
 #define MPI_VALIDATE(cond)                                           \
     MBEDTLS_INTERNAL_VALIDATE(cond)
-=======
-#if !defined(MBEDTLS_BIGNUM_ALT)
-
-#define MPI_VALIDATE_RET( cond )                                       \
-    MBEDTLS_INTERNAL_VALIDATE_RET( cond, MBEDTLS_ERR_MPI_BAD_INPUT_DATA )
-#define MPI_VALIDATE( cond )                                           \
-    MBEDTLS_INTERNAL_VALIDATE( cond )
->>>>>>> f859b9bc7 (mbedtls: Re-apply MBEDTLS_BIGNUM_ALT & related macros for custom bignum functions)
 
 #define MPI_SIZE_T_MAX  ((size_t) -1)   /* SIZE_T_MAX is not standard */
 
@@ -1661,9 +1654,15 @@ cleanup:
 /*
  * Sliding-window exponentiation: X = A^E mod N  (HAC 14.85)
  */
+#if !defined(MBEDTLS_MPI_EXP_MOD_ALT_FALLBACK)
 int mbedtls_mpi_exp_mod(mbedtls_mpi *X, const mbedtls_mpi *A,
                         const mbedtls_mpi *E, const mbedtls_mpi *N,
                         mbedtls_mpi *prec_RR)
+#else
+int mbedtls_mpi_exp_mod_soft(mbedtls_mpi *X, const mbedtls_mpi *A,
+                        const mbedtls_mpi *E, const mbedtls_mpi *N,
+                        mbedtls_mpi *prec_RR)
+#endif
 {
     int ret = MBEDTLS_ERR_ERROR_CORRUPTION_DETECTED;
     size_t window_bitsize;
