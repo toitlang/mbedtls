@@ -124,6 +124,7 @@ int main( void )
 #define DFL_AUTH_MODE           -1
 #define DFL_MFL_CODE            MBEDTLS_SSL_MAX_FRAG_LEN_NONE
 #define DFL_TRUNC_HMAC          -1
+#define DFL_RECORD_SIZE_LIMIT   -1
 #define DFL_RECSPLIT            -1
 #define DFL_DHMLEN              -1
 #define DFL_RECONNECT           0
@@ -186,6 +187,13 @@ int main( void )
 #else
 #define USAGE_TRUNC_HMAC ""
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
+
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+#define USAGE_RECORD_SIZE_LIMIT                             \
+    "    record_size_limit=%%d default: 1 (enabled)\n"
+#else
+#define USAGE_RECORD_SIZE_LIMIT ""
+#endif /* MBEDTLS_SSL_RECORD_SIZE_LIMIT */
 
 #if defined(MBEDTLS_SSL_MAX_FRAGMENT_LENGTH)
 #define USAGE_MAX_FRAG_LEN                                      \
@@ -673,6 +681,7 @@ int main( int argc, char *argv[] )
     opt.auth_mode           = DFL_AUTH_MODE;
     opt.mfl_code            = DFL_MFL_CODE;
     opt.trunc_hmac          = DFL_TRUNC_HMAC;
+    opt.record_size_limit   = DFL_RECORD_SIZE_LIMIT;
     opt.recsplit            = DFL_RECSPLIT;
     opt.dhmlen              = DFL_DHMLEN;
     opt.reconnect           = DFL_RECONNECT;
@@ -986,6 +995,15 @@ int main( int argc, char *argv[] )
             {
                 case 0: opt.trunc_hmac = MBEDTLS_SSL_TRUNC_HMAC_DISABLED; break;
                 case 1: opt.trunc_hmac = MBEDTLS_SSL_TRUNC_HMAC_ENABLED; break;
+                default: goto usage;
+            }
+        }
+        else if( strcmp( p, "record_size_limit" ) == 0 )
+        {
+            switch( atoi( q ) )
+            {
+                case 0: opt.record_size_limit = MBEDTLS_SSL_RECORD_SIZE_LIMIT_DISABLED; break;
+                case 1: opt.record_size_limit = MBEDTLS_SSL_RECORD_SIZE_LIMIT_ENABLED; break;
                 default: goto usage;
             }
         }
@@ -1454,6 +1472,11 @@ int main( int argc, char *argv[] )
 #if defined(MBEDTLS_SSL_TRUNCATED_HMAC)
     if( opt.trunc_hmac != DFL_TRUNC_HMAC )
         mbedtls_ssl_conf_truncated_hmac( &conf, opt.trunc_hmac );
+#endif
+
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+    if( opt.record_size_limit != DFL_RECORD_SIZE_LIMIT )
+        mbedtls_ssl_conf_record_size_limit( &conf, opt.record_size_limit );
 #endif
 
 #if defined(MBEDTLS_SSL_EXTENDED_MASTER_SECRET)

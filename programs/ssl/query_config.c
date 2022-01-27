@@ -1467,6 +1467,14 @@ int query_config( const char *config )
     }
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
 
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+    if( strcmp( "MBEDTLS_SSL_RECORD_SIZE_LIMIT", config ) == 0 )
+    {
+        MACRO_EXPANSION_TO_STR( MBEDTLS_SSL_RECORD_SIZE_LIMIT );
+        return( 0 );
+    }
+#endif /* MBEDTLS_SSL_RECORD_SIZE_LIMIT */
+
 #if defined(MBEDTLS_SSL_TRUNCATED_HMAC_COMPAT)
     if( strcmp( "MBEDTLS_SSL_TRUNCATED_HMAC_COMPAT", config ) == 0 )
     {

@@ -4202,8 +4202,8 @@ static int ssl_parse_record_header( mbedtls_ssl_context *ssl )
     if( ssl->in_msglen > MBEDTLS_SSL_IN_BUFFER_LEN
                          - (size_t)( ssl->in_msg - ssl->in_buf ) )
     {
-        MBEDTLS_SSL_DEBUG_MSG( 1, ( "bad message length" ) );
-        return( MBEDTLS_ERR_SSL_INVALID_RECORD );
+        MBEDTLS_SSL_DEBUG_MSG( 1, ( "bad message length: %d", ssl->in_msglen ) );
+        return( MBEDTLS_ERR_SSL_OVERSIZED_RECORD );
     }
 
     /*
@@ -7785,6 +7785,13 @@ void mbedtls_ssl_conf_truncated_hmac( mbedtls_ssl_config *conf, int truncate )
 }
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
 
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+void mbedtls_ssl_conf_record_size_limit( mbedtls_ssl_config *conf, int enable )
+{
+    conf->record_size_limit = enable;
+}
+#endif /* MBEDTLS_SSL_RECORD_SIZE_LIMIT */
+
 #if defined(MBEDTLS_SSL_CBC_RECORD_SPLITTING)
 void mbedtls_ssl_conf_cbc_record_splitting( mbedtls_ssl_config *conf, char split )
 {
@@ -9220,6 +9227,10 @@ int mbedtls_ssl_config_defaults( mbedtls_ssl_config *conf,
 
 #if defined(MBEDTLS_SSL_EXTENDED_MASTER_SECRET)
     conf->extended_ms = MBEDTLS_SSL_EXTENDED_MS_ENABLED;
+#endif
+
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+    conf->record_size_limit = MBEDTLS_SSL_RECORD_SIZE_LIMIT_ENABLED;
 #endif
 
 #if defined(MBEDTLS_SSL_CBC_RECORD_SPLITTING)
