@@ -147,6 +147,7 @@
 #define MBEDTLS_ERR_SSL_CONTINUE_PROCESSING               -0x6580  /**< Internal-only message signaling that further message-processing should be done */
 #define MBEDTLS_ERR_SSL_ASYNC_IN_PROGRESS                 -0x6500  /**< The asynchronous operation is not completed yet. */
 #define MBEDTLS_ERR_SSL_EARLY_MESSAGE                     -0x6480  /**< Internal-only message signaling that a message arrived early. */
+#define MBEDTLS_ERR_SSL_OVERSIZED_RECORD                  -0x6400  /**< Counterpart sent a record too large for our puny buffer. */
 #define MBEDTLS_ERR_SSL_CRYPTO_IN_PROGRESS                -0x7000  /**< A cryptographic operation is in progress. Try again later. */
 #define MBEDTLS_ERR_SSL_BAD_CONFIG                        -0x5E80  /**< Invalid value in SSL config */
 
@@ -215,6 +216,9 @@
 #define MBEDTLS_SSL_TRUNC_HMAC_DISABLED         0
 #define MBEDTLS_SSL_TRUNC_HMAC_ENABLED          1
 #define MBEDTLS_SSL_TRUNCATED_HMAC_LEN          10  /* 80 bits, rfc 6066 section 7 */
+
+#define MBEDTLS_SSL_RECORD_SIZE_LIMIT_DISABLED  0
+#define MBEDTLS_SSL_RECORD_SIZE_LIMIT_ENABLED   1
 
 #define MBEDTLS_SSL_SESSION_TICKETS_DISABLED     0
 #define MBEDTLS_SSL_SESSION_TICKETS_ENABLED      1
@@ -394,6 +398,8 @@
 
 #define MBEDTLS_TLS_EXT_ENCRYPT_THEN_MAC            22 /* 0x16 */
 #define MBEDTLS_TLS_EXT_EXTENDED_MASTER_SECRET  0x0017 /* 23 */
+
+#define MBEDTLS_TLS_EXT_RECORD_SIZE_LIMIT           28
 
 #define MBEDTLS_TLS_EXT_SESSION_TICKET              35
 
@@ -1034,6 +1040,9 @@ struct mbedtls_ssl_config
 #endif
 #if defined(MBEDTLS_SSL_TRUNCATED_HMAC)
     unsigned int trunc_hmac : 1;    /*!< negotiate truncated hmac?          */
+#endif
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+    unsigned int record_size_limit : 1;    /*!< inform server of limit?     */
 #endif
 #if defined(MBEDTLS_SSL_SESSION_TICKETS)
     unsigned int session_tickets : 1;   /*!< use session tickets?           */
@@ -2610,6 +2619,18 @@ int mbedtls_ssl_conf_max_frag_len( mbedtls_ssl_config *conf, unsigned char mfl_c
  */
 void mbedtls_ssl_conf_truncated_hmac( mbedtls_ssl_config *conf, int truncate );
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
+
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+/**
+ * \brief          Inform server of our incoming buffer size.
+ *                 (Default: MBEDTLS_SSL_RECORD_SIZE_LIMIT_ENABLED)
+ *
+ * \param conf     SSL configuration
+ * \param truncate Enable or disable (MBEDTLS_SSL_RECORD_SIZE_LIMIT_ENABLED or
+ *                                    MBEDTLS_SSL_RECORD_SIZE_LIMIT_DISABLED)
+ */
+void mbedtls_ssl_conf_record_size_limit( mbedtls_ssl_config *conf, int enable );
+#endif /* MBEDTLS_SSL_RECORD_SIZE_LIMIT */
 
 #if defined(MBEDTLS_SSL_CBC_RECORD_SPLITTING)
 /**

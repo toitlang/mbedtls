@@ -2417,6 +2417,7 @@
 #define ssl_set_sni mbedtls_ssl_conf_sni
 #define ssl_set_transport mbedtls_ssl_conf_transport
 #define ssl_set_truncated_hmac mbedtls_ssl_conf_truncated_hmac
+#define ssl_set_record_size_limit mbedtls_ssl_conf_record_size_limit
 #define ssl_set_verify mbedtls_ssl_conf_verify
 #define ssl_sig_from_pk mbedtls_ssl_sig_from_pk
 #define ssl_states mbedtls_ssl_states

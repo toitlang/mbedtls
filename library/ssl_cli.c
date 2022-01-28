@@ -531,6 +531,46 @@ static int ssl_write_truncated_hmac_ext( mbedtls_ssl_context *ssl,
 }
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
 
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+static int ssl_write_record_size_limit( mbedtls_ssl_context *ssl,
+                                        unsigned char *buf,
+                                        const unsigned char *end,
+                                        size_t *olen )
+{
+    unsigned char *p = buf;
+
+    int limit = MBEDTLS_SSL_IN_CONTENT_LEN;
+    /* Set the limit a little lower than our actual buffer size to account for
+       unknown overhead.  */
+    limit -= 256;
+    limit *= 0.95;
+    limit &= ~255;
+
+    *olen = 0;
+
+    if( ssl->conf->record_size_limit == MBEDTLS_SSL_RECORD_SIZE_LIMIT_DISABLED )
+        return( 0 );
+
+    MBEDTLS_SSL_DEBUG_MSG( 3,
+        ( "client hello, adding record_size_limit extension, limit %d", limit) );
+
+    MBEDTLS_SSL_CHK_BUF_PTR( p, end, 6 );
+
+    *p++ = (unsigned char)( ( MBEDTLS_TLS_EXT_RECORD_SIZE_LIMIT >> 8 ) & 0xFF );
+    *p++ = (unsigned char)( ( MBEDTLS_TLS_EXT_RECORD_SIZE_LIMIT      ) & 0xFF );
+
+    *p++ = 0x00;
+    *p++ = 0x02;
+
+    *p++ = (unsigned char)( ( limit >> 8 ) & 0xFF );
+    *p++ = (unsigned char)( ( limit      ) & 0xFF );
+
+    *olen = 6;
+
+    return( 0 );
+}
+#endif /* MBEDTLS_SSL_RECORD_SIZE_LIMIT */
+
 #if defined(MBEDTLS_SSL_ENCRYPT_THEN_MAC)
 static int ssl_write_encrypt_then_mac_ext( mbedtls_ssl_context *ssl,
                                            unsigned char *buf,
@@ -1171,6 +1211,16 @@ static int ssl_write_client_hello( mbedtls_ssl_context *ssl )
     ext_len += olen;
 #endif
 
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+    if( ( ret = ssl_write_record_size_limit( ssl, p + 2 + ext_len,
+                                             end, &olen ) ) != 0 )
+    {
+        MBEDTLS_SSL_DEBUG_RET( 1, "ssl_write_record_size_limit", ret );
+        return( ret );
+    }
+    ext_len += olen;
+#endif
+
 #if defined(MBEDTLS_SSL_ENCRYPT_THEN_MAC)
     if( ( ret = ssl_write_encrypt_then_mac_ext( ssl, p + 2 + ext_len,
                                                 end, &olen ) ) != 0 )
@@ -1350,6 +1400,40 @@ static int ssl_parse_truncated_hmac_ext( mbedtls_ssl_context *ssl,
     return( 0 );
 }
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
+
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+static int ssl_parse_record_size_limit( mbedtls_ssl_context *ssl,
+                                        const unsigned char *buf,
+                                        size_t len )
+{
+    if( ssl->conf->record_size_limit == MBEDTLS_SSL_RECORD_SIZE_LIMIT_DISABLED ||
+        len != 2 )
+    {
+        MBEDTLS_SSL_DEBUG_MSG( 1,
+            ( "non-matching record size limit extension" ) );
+        mbedtls_ssl_send_alert_message(
+            ssl,
+            MBEDTLS_SSL_ALERT_LEVEL_FATAL,
+            MBEDTLS_SSL_ALERT_MSG_HANDSHAKE_FAILURE );
+        return( MBEDTLS_ERR_SSL_BAD_HS_SERVER_HELLO );
+    }
+
+    MBEDTLS_SSL_DEBUG_MSG( 4,
+        ( "server recognized our record size limit extension" ) );
+
+    ((void) buf);
+
+    /* We don't actually do anything with the server's answer.  If the server
+       understood the extension it will include it in the answer.  If the
+       server did not understand the extension we continue in the hope that it
+       will never the less not send us records that are too big.  This will
+       always be the case for very small TLS downloads.  For example many data
+       APIs don't produce enough data in all to exceed the limit on record
+       size.  */
+
+    return( 0 );
+}
+#endif /* MBEDTLS_SSL_RECORD_SIZE_LIMIT */
 
 #if defined(MBEDTLS_SSL_ENCRYPT_THEN_MAC)
 static int ssl_parse_encrypt_then_mac_ext( mbedtls_ssl_context *ssl,
@@ -2055,6 +2139,19 @@ static int ssl_parse_server_hello( mbedtls_ssl_context *ssl )
 
             break;
 #endif /* MBEDTLS_SSL_TRUNCATED_HMAC */
+
+#if defined(MBEDTLS_SSL_RECORD_SIZE_LIMIT)
+        case MBEDTLS_TLS_EXT_RECORD_SIZE_LIMIT:
+            MBEDTLS_SSL_DEBUG_MSG( 3, ( "found record_size_limit extension" ) );
+
+            if( ( ret = ssl_parse_record_size_limit( ssl,
+                            ext + 4, ext_size ) ) != 0 )
+            {
+                return( ret );
+            }
+
+            break;
+#endif /* MBEDTLS_SSL_RECORD_SIZE_LIMIT */
 
 #if defined(MBEDTLS_SSL_ENCRYPT_THEN_MAC)
         case MBEDTLS_TLS_EXT_ENCRYPT_THEN_MAC:
