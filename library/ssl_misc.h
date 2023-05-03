@@ -2140,7 +2140,7 @@ static inline int mbedtls_ssl_tls13_named_group_is_dhe( uint16_t named_group )
 static inline int mbedtls_ssl_named_group_is_offered(
                         const mbedtls_ssl_context *ssl, uint16_t named_group )
 {
-    const uint16_t *group_list = mbedtls_ssl_get_groups( ssl );
+    const uint16_t *group_list = ( const uint16_t * )mbedtls_ssl_get_groups( ssl );
 
     if( group_list == NULL )
         return( 0 );
@@ -2296,7 +2296,7 @@ int mbedtls_ssl_tls13_check_sig_alg_cert_key_match( uint16_t sig_alg,
 static inline int mbedtls_ssl_sig_alg_is_offered( const mbedtls_ssl_context *ssl,
                                                   uint16_t proposed_sig_alg )
 {
-    const uint16_t *sig_alg = mbedtls_ssl_get_sig_algs( ssl );
+    const uint16_t *sig_alg = ( const uint16_t * )mbedtls_ssl_get_sig_algs( ssl );
     if( sig_alg == NULL )
         return( 0 );
 
