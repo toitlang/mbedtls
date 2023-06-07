@@ -185,7 +185,7 @@ static int ecdh_setup_internal( mbedtls_ecdh_context_mbed *ctx,
     ret = mbedtls_ecp_group_load( &ctx->grp, grp_id );
     if( ret != 0 )
     {
-        return( MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE );
+        return( MBEDTLS_ERROR_ADD( MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE, ret ) );
     }
 
     return( 0 );

@@ -2269,14 +2269,16 @@ start_processing:
         ciphersuite_info->key_exchange == MBEDTLS_KEY_EXCHANGE_DHE_PSK ||
         ciphersuite_info->key_exchange == MBEDTLS_KEY_EXCHANGE_ECDHE_PSK )
     {
-        if( ssl_parse_server_psk_hint( ssl, &p, end ) != 0 )
+        ret = ssl_parse_server_psk_hint( ssl, &p, end );
+        if( ret != 0 )
         {
+
             MBEDTLS_SSL_DEBUG_MSG( 1, ( "bad server key exchange message" ) );
             mbedtls_ssl_send_alert_message(
                 ssl,
                 MBEDTLS_SSL_ALERT_LEVEL_FATAL,
                 MBEDTLS_SSL_ALERT_MSG_DECODE_ERROR );
-            return( MBEDTLS_ERR_SSL_DECODE_ERROR );
+            return( MBEDTLS_ERROR_ADD( MBEDTLS_ERR_SSL_DECODE_ERROR, ret ) );
         }
     } /* FALLTHROUGH */
 #endif /* MBEDTLS_KEY_EXCHANGE_SOME_PSK_ENABLED */
@@ -2294,14 +2296,15 @@ start_processing:
     if( ciphersuite_info->key_exchange == MBEDTLS_KEY_EXCHANGE_DHE_RSA ||
         ciphersuite_info->key_exchange == MBEDTLS_KEY_EXCHANGE_DHE_PSK )
     {
-        if( ssl_parse_server_dh_params( ssl, &p, end ) != 0 )
+        ret = ssl_parse_server_dh_params( ssl, &p, end );
+        if( ret != 0 )
         {
             MBEDTLS_SSL_DEBUG_MSG( 1, ( "bad server key exchange message" ) );
             mbedtls_ssl_send_alert_message(
                 ssl,
                 MBEDTLS_SSL_ALERT_LEVEL_FATAL,
                 MBEDTLS_SSL_ALERT_MSG_ILLEGAL_PARAMETER );
-            return( MBEDTLS_ERR_SSL_ILLEGAL_PARAMETER );
+            return( MBEDTLS_ERROR_ADD( MBEDTLS_ERR_SSL_ILLEGAL_PARAMETER, ret ) );
         }
     }
     else
@@ -2314,14 +2317,15 @@ start_processing:
         ciphersuite_info->key_exchange == MBEDTLS_KEY_EXCHANGE_ECDHE_PSK ||
         ciphersuite_info->key_exchange == MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA )
     {
-        if( ssl_parse_server_ecdh_params( ssl, &p, end ) != 0 )
+        ret = ssl_parse_server_ecdh_params( ssl, &p, end );
+        if( ret != 0 )
         {
             MBEDTLS_SSL_DEBUG_MSG( 1, ( "bad server key exchange message" ) );
             mbedtls_ssl_send_alert_message(
                 ssl,
                 MBEDTLS_SSL_ALERT_LEVEL_FATAL,
                 MBEDTLS_SSL_ALERT_MSG_ILLEGAL_PARAMETER );
-            return( MBEDTLS_ERR_SSL_ILLEGAL_PARAMETER );
+            return( MBEDTLS_ERROR_ADD( MBEDTLS_ERR_SSL_ILLEGAL_PARAMETER, ret ) );
         }
     }
     else

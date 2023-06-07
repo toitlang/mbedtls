@@ -2562,6 +2562,7 @@ static int x509_crt_check_parent( const mbedtls_x509_crt *child,
  *
  * Return value:
  *  - 0 on success
+ *  - MBEDTLS_ERR_MPI_ALLOC_FAILED on memory allocation failure
  *  - MBEDTLS_ERR_ECP_IN_PROGRESS otherwise
  */
 static int x509_crt_find_parent_in(
@@ -2618,6 +2619,13 @@ static int x509_crt_find_parent_in(
 check_signature:
 #endif
         ret = x509_crt_check_signature( child, parent, rs_ctx );
+
+        if( MBEDTLS_LOW_LEVEL_ERROR( ret ) == MBEDTLS_ERR_MPI_ALLOC_FAILED )
+        {
+            *r_parent = NULL;
+            *r_signature_is_good = 0;
+            return (ret);
+        }
 
 #if defined(MBEDTLS_ECDSA_C) && defined(MBEDTLS_ECP_RESTARTABLE)
         if( rs_ctx != NULL && ret == MBEDTLS_ERR_ECP_IN_PROGRESS )
@@ -2685,6 +2693,7 @@ check_signature:
  *
  * Return value:
  *  - 0 on success
+ *  - MBEDTLS_ERR_MPI_ALLOC_FAILED if allocation failed
  *  - MBEDTLS_ERR_ECP_IN_PROGRESS otherwise
  */
 static int x509_crt_find_parent(
@@ -2731,7 +2740,9 @@ static int x509_crt_find_parent(
 #endif
 
         /* stop here if found or already in second iteration */
-        if( *parent != NULL || *parent_is_trusted == 0 )
+        if( *parent != NULL ||
+            *parent_is_trusted == 0 ||
+            MBEDTLS_LOW_LEVEL_ERROR( ret ) == MBEDTLS_ERR_MPI_ALLOC_FAILED )
             break;
 
         /* prepare second iteration */
@@ -2744,6 +2755,9 @@ static int x509_crt_find_parent(
         *parent_is_trusted = 0;
         *signature_is_good = 0;
     }
+
+    if( MBEDTLS_LOW_LEVEL_ERROR( ret ) == MBEDTLS_ERR_MPI_ALLOC_FAILED )
+        return ret;
 
     return( 0 );
 }
@@ -2927,6 +2941,9 @@ find_parent:
         ret = x509_crt_find_parent( child, cur_trust_ca, &parent,
                                        &parent_is_trusted, &signature_is_good,
                                        ver_chain->len - 1, self_cnt, rs_ctx );
+
+        if( MBEDTLS_LOW_LEVEL_ERROR ( ret ) == MBEDTLS_ERR_MPI_ALLOC_FAILED )
+            return( ret );
 
 #if defined(MBEDTLS_ECDSA_C) && defined(MBEDTLS_ECP_RESTARTABLE)
         if( rs_ctx != NULL && ret == MBEDTLS_ERR_ECP_IN_PROGRESS )
