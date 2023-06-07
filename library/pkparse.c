@@ -522,7 +522,7 @@ static int pk_get_rsapubkey( unsigned char **p,
 
     if( ( ret = mbedtls_rsa_import_raw( rsa, *p, len, NULL, 0, NULL, 0,
                                         NULL, 0, NULL, 0 ) ) != 0 )
-        return( MBEDTLS_ERR_PK_INVALID_PUBKEY );
+        return( MBEDTLS_ERROR_ADD( MBEDTLS_ERR_PK_INVALID_PUBKEY, ret ) );
 
     *p += len;
 
@@ -532,14 +532,14 @@ static int pk_get_rsapubkey( unsigned char **p,
 
     if( ( ret = mbedtls_rsa_import_raw( rsa, NULL, 0, NULL, 0, NULL, 0,
                                         NULL, 0, *p, len ) ) != 0 )
-        return( MBEDTLS_ERR_PK_INVALID_PUBKEY );
+        return( MBEDTLS_ERROR_ADD( MBEDTLS_ERR_PK_INVALID_PUBKEY, ret ) );
 
     *p += len;
 
-    if( mbedtls_rsa_complete( rsa ) != 0 ||
-        mbedtls_rsa_check_pubkey( rsa ) != 0 )
+    if( ( ret = mbedtls_rsa_complete( rsa ) ) != 0 ||
+        ( ret = mbedtls_rsa_check_pubkey( rsa ) ) != 0 )
     {
-        return( MBEDTLS_ERR_PK_INVALID_PUBKEY );
+        return( MBEDTLS_ERROR_ADD( MBEDTLS_ERR_PK_INVALID_PUBKEY, ret ) );
     }
 
     if( *p != end )
