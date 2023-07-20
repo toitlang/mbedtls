@@ -2917,7 +2917,7 @@ find_parent:
 
             ret = f_ca_cb( p_ca_cb, child, &ver_chain->trust_ca_cb_result );
             if( ret != 0 )
-                return( MBEDTLS_ERR_X509_FATAL_ERROR );
+                return( ret );
 
             cur_trust_ca = ver_chain->trust_ca_cb_result;
         }
