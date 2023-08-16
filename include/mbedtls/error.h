@@ -116,13 +116,23 @@ extern "C" {
 #define MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED -0x0072
 
 /**
+ * \brief Gets only the low-level error code from an error code.
+ *        This is the low 7 bits of the error code. Error codes
+ *        are negative, so this returns a small negative number.
+ *        This doesn't work on 0 (no error).
+ */
+#define MBEDTLS_LOW_LEVEL_ERROR(error_code) \
+        ((error_code) | ~0x7f)
+
+/**
  * \brief Combines a high-level and low-level error code together.
  *
  *        Wrapper macro for mbedtls_error_add(). See that function for
- *        more details.
+ *        more details. This wrapper removes any high level error that
+ *        might already have been added to the low level error code.
  */
 #define MBEDTLS_ERROR_ADD(high, low) \
-    mbedtls_error_add(high, low, __FILE__, __LINE__)
+        mbedtls_error_add(high, MBEDTLS_LOW_LEVEL_ERROR( low ), __FILE__, __LINE__)
 
 #if defined(MBEDTLS_TEST_HOOKS)
 /**
