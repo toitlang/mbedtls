@@ -132,7 +132,7 @@ extern "C" {
  *        might already have been added to the low level error code.
  */
 #define MBEDTLS_ERROR_ADD(high, low) \
-        mbedtls_error_add(high, MBEDTLS_LOW_LEVEL_ERROR( low ), __FILE__, __LINE__)
+        mbedtls_error_add((high), MBEDTLS_LOW_LEVEL_ERROR(low), __FILE__, __LINE__)
 
 #if defined(MBEDTLS_TEST_HOOKS)
 /**
