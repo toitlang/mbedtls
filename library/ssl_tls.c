@@ -7721,8 +7721,11 @@ static int ssl_calc_finished_tls_generic(mbedtls_ssl_context *ssl, void *ctx,
      *   hash = PRF( master, finished_label,
      *               Hash( handshake ) )[0.11]
      */
-    ssl->handshake->tls_prf(session->master, 48, sender,
-                            padbuf, hlen, buf, len);
+    ret = ssl->handshake->tls_prf(session->master, 48, sender,
+                                  padbuf, hlen, buf, len);
+    if (ret != 0) {
+        goto exit;
+    }
 
     MBEDTLS_SSL_DEBUG_BUF(3, "calc finished result", buf, len);
 
@@ -7869,6 +7872,7 @@ int mbedtls_ssl_write_finished(mbedtls_ssl_context *ssl)
     ret = ssl->handshake->calc_finished(ssl, ssl->out_msg + 4, ssl->conf->endpoint);
     if (ret != 0) {
         MBEDTLS_SSL_DEBUG_RET(1, "calc_finished", ret);
+        return ret;
     }
 
     /*
